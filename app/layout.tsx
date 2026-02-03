@@ -11,8 +11,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Solution Threads",
-  description: "We don't sell AI. We solve your actual problems.",
-  keywords: ["AI consulting", "investment firms", "workflow automation", "on-premise AI", "boutique VC"],
+  description: "Your AI Chief of Staff. Built around your team.",
+  keywords: ["AI consulting", "AI chief of staff", "workflow automation", "custom AI agents"],
+  openGraph: {
+    title: "Solution Threads",
+    description: "Your AI Chief of Staff. Built around your team.",
+    type: "website",
+  },
 };
 
 export const viewport = {

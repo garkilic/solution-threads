@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -27,63 +28,68 @@ export default function Home() {
         {/* Main pitch - Hero */}
         <div className="space-y-4 animate-fade-in">
           <h1 className="text-5xl md:text-6xl font-semibold text-navy leading-tight">
-            We don't sell AI.
+            Your AI Chief of Staff.
             <br />
-            <span className="text-slate">We solve your problems.</span>
+            <span className="text-slate">Built around your team.</span>
           </h1>
 
           <p className="text-lg text-slate/80 leading-relaxed max-w-3xl mx-auto">
-            We come to your workplace, talk to your people, and build only what actually helps. We keep it simple so we don't waste your time.
+            We figure out how you're using AI today, work alongside your people, and build a system that actually fits.
           </p>
 
           <p className="text-base text-slate/70 leading-relaxed max-w-2xl mx-auto pt-2">
-            Honestly, we don't want you to use AI—<span className="text-teal font-medium">unless you absolutely have to</span>.
+            No generic tools. No forcing AI where it doesn't belong—<span className="text-teal font-medium">just what works for you</span>.
           </p>
         </div>
 
-        {/* The Agentic System */}
-        <div className="space-y-5 pt-4">
-          <div className="grid md:grid-cols-3 gap-6 text-left">
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-coral">1</div>
-              <h3 className="text-lg font-semibold text-navy">Discovery</h3>
-              <p className="text-base text-slate/70 leading-relaxed">
-                We visit your office and map your actual workflow
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-coral">2</div>
-              <h3 className="text-lg font-semibold text-navy">Build Agents</h3>
-              <p className="text-base text-slate/70 leading-relaxed">
-                Custom AI agents for your specific tasks—no generic tools
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-coral">3</div>
-              <h3 className="text-lg font-semibold text-navy">Deploy On-Site</h3>
-              <p className="text-base text-slate/70 leading-relaxed">
-                Secure computer at your location, accessible from desktop or phone
-              </p>
-            </div>
+        {/* Offerings */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-16 pt-4">
+          <div className="relative pl-4 border-l-2 border-teal">
+            <div className="text-xs font-semibold text-teal tracking-widest uppercase mb-2">Understand</div>
+            <p className="text-base text-slate/70 leading-relaxed max-w-[200px]">
+              We learn how your team uses AI today and where the gaps are.
+            </p>
           </div>
 
+          <div className="relative pl-4 border-l-2 border-teal">
+            <div className="text-xs font-semibold text-teal tracking-widest uppercase mb-2">Collaborate</div>
+            <p className="text-base text-slate/70 leading-relaxed max-w-[200px]">
+              We work with your people to design what they actually need.
+            </p>
+          </div>
+
+          <div className="relative pl-4 border-l-2 border-teal">
+            <div className="text-xs font-semibold text-teal tracking-widest uppercase mb-2">Build</div>
+            <p className="text-base text-slate/70 leading-relaxed max-w-[200px]">
+              We deliver your AI Chief of Staff—tailored to your workflow.
+            </p>
+          </div>
         </div>
 
         {/* CTA */}
-        <div className="pt-6 space-y-4">
+        <div className="pt-6 space-y-3">
+          <p className="text-base text-slate/70">Ready to meet your new Chief of Staff?</p>
           <a
             href="mailto:griffin@punk-ventures.com?subject=Solution%20Threads%20Inquiry"
-            className="text-lg text-navy underline hover:text-teal transition-colors font-medium"
+            className="inline-block text-base text-navy border-b-2 border-teal hover:text-teal transition-colors font-medium"
           >
-            send us an email
+            let's talk →
           </a>
 
           {/* Note */}
-          <p className="text-base text-slate/70 max-w-2xl mx-auto pt-6 leading-relaxed">
+          <p className="text-sm text-slate/50 max-w-xl mx-auto pt-6 leading-relaxed">
             Don't mistake our website simplicity for lack of technical knowledge. We just don't want to waste your time.
           </p>
+
+          {/* About link */}
+          <div className="pt-4">
+            <Link
+              href="/about"
+              className="text-sm text-slate/60 hover:text-teal transition-colors"
+            >
+              about us →
+            </Link>
+          </div>
         </div>
       </div>
     </main>
