@@ -18,7 +18,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -27,10 +27,26 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-.animate-fade-in-delay {
+.animate-fade-in-delay-1 {
   opacity: 0;
-  animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s forwards;
+}
+
+.animate-fade-in-delay-2 {
+  opacity: 0;
+  animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards;
+}
+
+.animate-fade-in-delay-3 {
+  opacity: 0;
+  animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.45s forwards;
+}
+
+.animate-fade-in-delay-4 {
+  opacity: 0;
+  animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s forwards;
 }

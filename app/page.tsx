@@ -43,7 +43,7 @@ export default function Home() {
         </div>
 
         {/* Offerings */}
-        <div className="flex flex-col md:flex-row gap-5 sm:gap-8 md:gap-16 pt-2 sm:pt-4 text-left md:text-left">
+        <div className="flex flex-col md:flex-row gap-5 sm:gap-8 md:gap-16 pt-2 sm:pt-4 text-left md:text-left animate-fade-in-delay-1">
           <div className="relative pl-4 border-l-2 border-teal">
             <div className="text-xs font-semibold text-teal tracking-widest uppercase mb-1 sm:mb-2">Understand</div>
             <p className="text-sm sm:text-base text-slate/70 leading-relaxed md:max-w-[200px]">
@@ -67,7 +67,7 @@ export default function Home() {
         </div>
 
         {/* CTA */}
-        <div className="pt-4 sm:pt-6 space-y-3">
+        <div className="pt-4 sm:pt-6 space-y-3 animate-fade-in-delay-2">
           <p className="text-sm sm:text-base text-slate/70">Ready to meet your new Chief of Staff?</p>
           <a
             href="mailto:griffin@punk-ventures.com?subject=Solution%20Threads%20Inquiry"
@@ -76,19 +76,32 @@ export default function Home() {
             let's talk →
           </a>
 
-          {/* Note */}
-          <p className="text-xs sm:text-sm text-slate/50 max-w-xl mx-auto pt-4 sm:pt-6 leading-relaxed">
-            Don't mistake our website simplicity for lack of technical knowledge. We just don't want to waste your time.
-          </p>
-
-          {/* About link */}
-          <div className="pt-3 sm:pt-4">
+          {/* About & Testimonials links */}
+          <div className="pt-3 sm:pt-4 flex items-center justify-center gap-4 sm:gap-6">
             <Link
               href="/about"
               className="text-xs sm:text-sm text-slate/60 hover:text-teal transition-colors"
             >
               about us →
             </Link>
+            <Link
+              href="/testimonials"
+              className="text-xs sm:text-sm text-slate/60 hover:text-teal transition-colors"
+            >
+              testimonials →
+            </Link>
+          </div>
+
+          {/* Punk Ventures attribution */}
+          <div className="pt-8 sm:pt-12">
+            <a
+              href="https://punk-ventures.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-slate/30 hover:text-slate/50 transition-colors"
+            >
+              a punk ventures business
+            </a>
           </div>
         </div>
       </div>
