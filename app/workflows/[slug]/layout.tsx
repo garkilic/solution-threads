@@ -1,5 +1,4 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,10 +22,7 @@ export default async function WorkflowLayout({
   return (
     <div className={`workflow-theme ${geistSans.variable} ${geistMono.variable}`}>
       <nav className="border-b border-zinc-800/60 px-6 py-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/" className="text-zinc-400 transition-colors hover:text-zinc-100">
-            ← Solution Threads
-          </Link>
+        <div className="mx-auto flex max-w-5xl items-center justify-end">
           <span className="text-xs text-zinc-600">
             {slug}
           </span>
