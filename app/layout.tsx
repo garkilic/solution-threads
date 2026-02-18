@@ -11,11 +11,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Solution Threads",
-  description: "Your AI Chief of Staff. Built around your team.",
-  keywords: ["AI consulting", "AI chief of staff", "workflow automation", "custom AI agents"],
+  description: "Repeatable AI workflows, built for your team.",
+  keywords: ["AI consulting", "workflow automation", "custom AI agents", "AI workflow automation"],
   openGraph: {
     title: "Solution Threads",
-    description: "Your AI Chief of Staff. Built around your team.",
+    description: "Repeatable AI workflows, built for your team.",
     type: "website",
   },
 };
