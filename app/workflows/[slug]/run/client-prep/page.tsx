@@ -656,7 +656,8 @@ export default function RunClientPrep({ params }: { params: Promise<{ slug: stri
                 onChange={(e) => setContext(e.target.value)}
                 placeholder="E.g., discussing clean energy allocation, gifting strategy for grandchildren..."
                 rows={3}
-                className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700"
+                disabled={running}
+                className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
               />
             </div>
           )}
@@ -684,17 +685,31 @@ export default function RunClientPrep({ params }: { params: Promise<{ slug: stri
           )}
 
           {/* Processing indicator */}
-          {running && (
+          {running && activeStepIdx < WORKFLOW_STEPS.length - 1 && (
             <div className="flex items-center gap-2.5 rounded-xl border border-zinc-800 bg-zinc-900/80 px-5 py-3.5">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500/30 border-t-emerald-500" />
               <span className="text-sm font-medium text-zinc-200">
-                {activeStepIdx >= 0 && activeStepIdx < WORKFLOW_STEPS.length
+                {activeStepIdx >= 0
                   ? WORKFLOW_STEPS[activeStepIdx].label
                   : "Processing..."}
               </span>
               <span className="ml-auto text-xs tabular-nums text-zinc-500">
                 {elapsedSeconds}s
               </span>
+            </div>
+          )}
+
+          {/* Synthesis indicator — shown prominently during the slow AI step */}
+          {running && activeStepIdx === WORKFLOW_STEPS.length - 1 && (
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-6 py-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10">
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-500/30 border-t-emerald-500" />
+              </div>
+              <p className="text-sm font-medium text-zinc-100">Generating your briefing</p>
+              <p className="mt-1.5 text-xs text-zinc-500">
+                AI synthesis typically takes 20–40 seconds. Hang tight.
+              </p>
+              <p className="mt-3 text-xs tabular-nums text-zinc-600">{elapsedSeconds}s elapsed</p>
             </div>
           )}
         </div>
