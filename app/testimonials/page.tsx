@@ -19,11 +19,11 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <main className="h-screen w-screen flex flex-col items-center justify-center relative px-4 sm:px-8">
+    <main className="workflow-theme h-screen w-screen flex flex-col items-center justify-center relative px-4 sm:px-8">
       <div className="max-w-3xl mx-auto space-y-8 sm:space-y-10 relative z-10 text-center">
         {/* Header */}
         <div className="animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-navy">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-zinc-100">
             What our clients say
           </h1>
         </div>
@@ -35,13 +35,13 @@ export default function Testimonials() {
               key={index}
               className={`space-y-3 animate-fade-in-delay-${index + 1}`}
             >
-              <p className="text-sm sm:text-base text-slate/70 leading-relaxed italic">
+              <p className="text-sm sm:text-base text-zinc-400 leading-relaxed italic">
                 "{testimonial.text}"
               </p>
-              <p className="text-base sm:text-lg text-navy font-medium border-l-2 border-teal pl-3 inline-block">
+              <p className="text-base sm:text-lg text-zinc-100 font-medium border-l-2 border-emerald-500 pl-3 inline-block">
                 {testimonial.highlight}
               </p>
-              <p className="text-xs sm:text-sm text-slate/50">
+              <p className="text-xs sm:text-sm text-zinc-500">
                 {testimonial.role}, {testimonial.company}
               </p>
             </div>
@@ -52,13 +52,15 @@ export default function Testimonials() {
         <div className="flex items-center justify-center gap-6 animate-fade-in-delay-3">
           <Link
             href="/"
-            className="text-xs sm:text-sm text-slate/60 hover:text-teal transition-colors"
+            className="text-xs sm:text-sm text-zinc-500 hover:text-emerald-400 transition-colors"
           >
             ← back
           </Link>
           <a
-            href="mailto:griffin@punk-ventures.com?subject=Solution%20Threads%20Inquiry"
-            className="text-xs sm:text-sm text-navy border-b-2 border-teal hover:text-teal transition-colors font-medium"
+            href="https://calendar.app.google/m84kkrxZbjSnbd1D7"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs sm:text-sm text-zinc-200 border-b-2 border-emerald-500 hover:text-emerald-400 transition-colors font-medium"
           >
             let's talk →
           </a>

@@ -1,0 +1,73 @@
+FIDELITY INSTITUTIONAL - CUSTODIAN ACCOUNT SUMMARY
+Client: Whitfield Family Trust
+Advisor: Reynders, McVeigh Capital Management, LLC
+Report Date: February 10, 2026
+
+═══════════════════════════════════════════════
+ACCOUNT OVERVIEW
+═══════════════════════════════════════════════
+Account Number: Z82-441893
+Registration: Whitfield Family Trust UAD 03/15/2018
+               Margaret Whitfield, Trustee
+Tax ID: ***-**-7741
+Account Type: Irrevocable Trust
+Custody Status: Active
+Fee Schedule: Institutional Advisory
+
+═══════════════════════════════════════════════
+CASH & PENDING ACTIVITY
+═══════════════════════════════════════════════
+Available Cash Balance: $341,205.44
+Pending Credits: $0.00
+Pending Debits: -$50,000.00 (Charitable distribution scheduled 04/10/2026)
+Settled Cash: $341,205.44
+
+Pending Transactions:
+  [PENDING] 02/15/2026 - Dividend payment PRBLX est. $4,812.00
+  [PENDING] 02/15/2026 - Dividend payment DSI est. $2,106.00
+  [SCHEDULED] 04/10/2026 - Wire out $50,000 to Whitfield Foundation
+                            (recurring quarterly - next: 07/10/2026)
+
+═══════════════════════════════════════════════
+RECENT TRANSACTIONS (Last 60 Days)
+═══════════════════════════════════════════════
+02/03/2026  Credit    Interest - Money Market          $287.41
+01/28/2026  Buy       ICLN - 1,847 shares @ $67.68    $125,000.00
+01/15/2026  Credit    Dividend reinvestment (various)  $18,442.16
+01/10/2026  Debit     Wire to Whitfield Foundation     -$50,000.00
+01/03/2026  Credit    Interest - Money Market          $298.12
+12/31/2025  Credit    Dividend reinvestment (various)  $22,108.44
+12/15/2025  Credit    Dividend - TGRAX                 $3,844.20
+
+═══════════════════════════════════════════════
+COMPLIANCE & REQUIRED ACTIONS
+═══════════════════════════════════════════════
+[OK]     Anti-Money Laundering (AML) review: Current (last: 09/2025)
+[OK]     Trust documentation on file: Current
+[OK]     Beneficiary designations: On file, verified 12/2025
+
+[ACTION] Annual trust certification due: 03/15/2026
+         Trustee must sign and return updated certification.
+         Form sent to Margaret Whitfield on 02/01/2026.
+         Status: NOT YET RETURNED
+
+[INFO]   Cost basis method: Average Cost (mutual funds), Specific ID (ETFs)
+[INFO]   Tax lot accounting: Enabled
+[INFO]   1099 forms for 2025: Generated, available in portal
+
+═══════════════════════════════════════════════
+DISTRIBUTION HISTORY (2025)
+═══════════════════════════════════════════════
+01/10/2025  Wire  Whitfield Foundation    $50,000.00
+04/10/2025  Wire  Whitfield Foundation    $50,000.00
+07/10/2025  Wire  Whitfield Foundation    $50,000.00
+10/10/2025  Wire  Whitfield Foundation    $50,000.00
+                                   Total: $200,000.00
+
+═══════════════════════════════════════════════
+ACCOUNT CONTACTS (Authorized)
+═══════════════════════════════════════════════
+Margaret Whitfield - Trustee (Full authority)
+Sarah Whitfield-Reeves - Successor Trustee (View only, unless activated)
+Maria Egan, RMC - Investment Advisor (Trading authority)
+Paul Delaney, Ropes & Gray - Attorney (Document requests only)
