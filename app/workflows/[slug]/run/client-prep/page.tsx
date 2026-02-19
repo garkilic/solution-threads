@@ -4,8 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Client } from "@/lib/types";
-import { getClients, saveClients, saveOutput } from "@/lib/storage";
-import { getClientBySlug } from "@/lib/auth";
 
 interface AttachedFile {
   name: string;
@@ -64,7 +62,6 @@ function parseCSV(text: string): Client[] {
 
 export default function RunClientPrep({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
-  const [clientId, setClientId] = useState<string>("");
   const [slug, setSlug] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<Client[]>([]);
@@ -96,11 +93,10 @@ export default function RunClientPrep({ params }: { params: Promise<{ slug: stri
     async function loadData() {
       const resolvedParams = await params;
       setSlug(resolvedParams.slug);
-      const client = await getClientBySlug(resolvedParams.slug);
-      if (client) {
-        setClientId(client.id);
-        const savedClients = await getClients(client.id);
-        if (savedClients.length > 0) setClients(savedClients);
+      const res = await fetch(`/api/meeting-prep/clients?slug=${resolvedParams.slug}`);
+      if (res.ok) {
+        const { clients: saved } = await res.json();
+        if (saved && saved.length > 0) setClients(saved);
       }
       setLoading(false);
     }
@@ -119,14 +115,18 @@ export default function RunClientPrep({ params }: { params: Promise<{ slug: stri
     reader.onload = async (e) => {
       const text = e.target?.result as string;
       const parsed = parseCSV(text);
-      if (parsed.length > 0 && clientId) {
+      if (parsed.length > 0 && slug) {
         setClients(parsed);
-        await saveClients(clientId, parsed);
+        await fetch('/api/meeting-prep/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, clients: parsed }),
+        });
         setSelectedIdx(-1);
       }
     };
     reader.readAsText(file);
-  }, [clientId]);
+  }, [slug]);
 
   // Process sources sequentially when client is selected
   async function processSourcesSequentially() {
@@ -220,7 +220,7 @@ export default function RunClientPrep({ params }: { params: Promise<{ slug: stri
   }
 
   async function handleRun() {
-    if (selectedIdx === -1 || !clientId) return;
+    if (selectedIdx === -1 || !slug) return;
     const client = clients[selectedIdx];
     setRunning(true);
     setElapsedSeconds(0);
@@ -280,14 +280,19 @@ export default function RunClientPrep({ params }: { params: Promise<{ slug: stri
       const data = await res.json();
       completeAllSteps();
 
-      const runId = await saveOutput(
-        clientId,
-        client.name,
-        client.company,
-        context || undefined,
-        data.keyStats,
-        data.sections
-      );
+      const saveRes = await fetch('/api/meeting-prep/output-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          contactName: client.name,
+          contactCompany: client.company,
+          context: context || undefined,
+          keyStats: data.keyStats,
+          sections: data.sections,
+        }),
+      });
+      const { id: runId } = await saveRes.json();
 
       setTimeout(() => router.push(`/workflows/${slug}/output/${runId}`), 800);
     } catch (err) {

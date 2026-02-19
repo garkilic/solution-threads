@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { WorkflowOutput } from "@/lib/types";
-import { getOutput } from "@/lib/storage";
 
 const REFERENCE_TABS = [
   { key: "portfolioSummary", label: "Portfolio", source: "Ridgeline" },
@@ -25,8 +24,11 @@ export default function OutputPage({ params }: { params: Promise<{ slug: string;
     async function loadOutput() {
       const resolvedParams = await params;
       setSlug(resolvedParams.slug);
-      const data = await getOutput(resolvedParams.id);
-      setOutput(data);
+      const res = await fetch(`/api/meeting-prep/output/${resolvedParams.id}`);
+      if (res.ok) {
+        const { output: data } = await res.json();
+        setOutput(data);
+      }
       setLoading(false);
     }
     loadOutput();

@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Client, WorkflowOutput, KeyStats, BriefingSections } from './types';
+import { Client, WorkflowOutput, KeyStats, BriefingSections, BookProject, BookChapter, ChapterOutlineItem } from './types';
 
 // ============================================
 // Contacts (Client List)
@@ -286,4 +286,156 @@ export async function getUploadedFiles(clientId: string, source?: string): Promi
   }
 
   return data || [];
+}
+
+// ============================================
+// Book Projects
+// ============================================
+
+export async function createBookProject(
+  clientId: string,
+  data: {
+    title: string;
+    subjectName: string;
+    artStyle: string;
+    targetAge: string;
+    ancestryData?: string;
+    oralHistory?: string;
+    chapterOutline?: ChapterOutlineItem[];
+  }
+): Promise<string> {
+  const { data: row, error } = await supabase
+    .from('book_projects')
+    .insert({
+      client_id: clientId,
+      title: data.title,
+      subject_name: data.subjectName,
+      art_style: data.artStyle,
+      target_age: data.targetAge,
+      ancestry_data: data.ancestryData || null,
+      oral_history: data.oralHistory || null,
+      chapter_outline: data.chapterOutline || null,
+    })
+    .select('id')
+    .single();
+
+  if (error || !row) {
+    console.error('Error creating book project:', error);
+    throw new Error('Failed to create book project');
+  }
+
+  return row.id;
+}
+
+export async function updateBookProjectOutline(
+  projectId: string,
+  outline: ChapterOutlineItem[],
+  characterGuide: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('book_projects')
+    .update({ chapter_outline: outline, character_guide: characterGuide })
+    .eq('id', projectId);
+
+  if (error) {
+    console.error('Error updating book project outline:', error);
+  }
+}
+
+export async function getBookProject(projectId: string): Promise<BookProject | null> {
+  const { data, error } = await supabase
+    .from('book_projects')
+    .select('*')
+    .eq('id', projectId)
+    .single();
+
+  if (error || !data) return null;
+  return data as BookProject;
+}
+
+export async function getBookProjects(clientId: string): Promise<BookProject[]> {
+  const { data, error } = await supabase
+    .from('book_projects')
+    .select('*')
+    .eq('client_id', clientId)
+    .order('created_at', { ascending: false });
+
+  if (error) return [];
+  return (data || []) as BookProject[];
+}
+
+// ============================================
+// Book Chapters
+// ============================================
+
+export async function getBookChapters(projectId: string): Promise<BookChapter[]> {
+  const { data, error } = await supabase
+    .from('book_chapters')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('chapter_number', { ascending: true });
+
+  if (error) return [];
+  return (data || []) as BookChapter[];
+}
+
+export async function saveBookChapter(
+  projectId: string,
+  chapterNumber: number,
+  data: {
+    title?: string;
+    narrative?: string;
+    illustrationPrompt?: string;
+    imageUrl?: string;
+  }
+): Promise<string> {
+  const { data: existing } = await supabase
+    .from('book_chapters')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('chapter_number', chapterNumber)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from('book_chapters')
+      .update({
+        title: data.title || null,
+        narrative: data.narrative || null,
+        illustration_prompt: data.illustrationPrompt || null,
+        image_url: data.imageUrl || null,
+        status: 'draft',
+      })
+      .eq('id', existing.id);
+    return existing.id;
+  }
+
+  const { data: row, error } = await supabase
+    .from('book_chapters')
+    .insert({
+      project_id: projectId,
+      chapter_number: chapterNumber,
+      title: data.title || null,
+      narrative: data.narrative || null,
+      illustration_prompt: data.illustrationPrompt || null,
+      image_url: data.imageUrl || null,
+      status: 'draft',
+    })
+    .select('id')
+    .single();
+
+  if (error || !row) throw new Error('Failed to save book chapter');
+  return row.id;
+}
+
+export async function updateChapterStatus(
+  chapterId: string,
+  status: 'draft' | 'approved' | 'revision_requested',
+  feedback?: string
+): Promise<void> {
+  const update: Record<string, unknown> = { status };
+  if (feedback !== undefined) update.feedback = feedback;
+  if (status === 'approved') update.approved_at = new Date().toISOString();
+
+  await supabase.from('book_chapters').update(update).eq('id', chapterId);
 }

@@ -78,3 +78,39 @@ export interface DbUploadedFile {
   content: string;
   created_at: string;
 }
+
+// Book / Storytelling types
+export interface ChapterOutlineItem {
+  number: number;
+  title: string;
+  theme: string;
+  keyCharacters: string[];
+}
+
+export interface BookProject {
+  id: string;
+  client_id: string;
+  title: string;
+  subject_name: string;
+  art_style: string;
+  target_age: string;
+  ancestry_data?: string;
+  oral_history?: string;
+  chapter_outline?: ChapterOutlineItem[];
+  character_guide?: string;
+  created_at: string;
+}
+
+export interface BookChapter {
+  id: string;
+  project_id: string;
+  chapter_number: number;
+  title?: string;
+  narrative?: string;
+  illustration_prompt?: string;
+  image_url?: string;
+  status: 'draft' | 'approved' | 'revision_requested';
+  feedback?: string;
+  created_at: string;
+  approved_at?: string;
+}
