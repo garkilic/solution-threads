@@ -387,7 +387,7 @@ export default function StorytellingSetupPage({
 
         {/* Ancestry data */}
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-1.5 flex items-center justify-between">
             <label className="text-xs font-medium uppercase tracking-widest text-zinc-500">
               Ancestry Data{" "}
               <span className="normal-case tracking-normal text-zinc-600">(optional)</span>
@@ -413,6 +413,16 @@ export default function StorytellingSetupPage({
               </button>
             </div>
           </div>
+          <a
+            href="/demo-data/ancestry-rivera.csv"
+            download
+            className="mb-2 inline-flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 text-[11px] font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Sample CSV
+          </a>
 
           {ancestryMode === "paste" ? (
             <textarea
@@ -455,10 +465,20 @@ export default function StorytellingSetupPage({
 
         {/* Oral history */}
         <div>
-          <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-zinc-500">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-widest text-zinc-500">
             Oral History Notes{" "}
             <span className="normal-case tracking-normal text-zinc-600">(optional)</span>
           </label>
+          <a
+            href="/demo-data/oral-history-rivera.txt"
+            download
+            className="mb-2 inline-flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 text-[11px] font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Sample notes
+          </a>
           <textarea
             value={oralHistory}
             onChange={(e) => setOralHistory(e.target.value)}
