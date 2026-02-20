@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function StorytellingAccess({
@@ -8,15 +8,11 @@ export default function StorytellingAccess({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const { slug } = use(params);
   const router = useRouter();
-  const [slug, setSlug] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    params.then((p) => setSlug(p.slug));
-  }, [params]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,6 +26,7 @@ export default function StorytellingAccess({
     });
 
     if (res.ok) {
+      setLoading(false);
       router.push(`/workflows/${slug}/storytelling`);
     } else {
       setError("Incorrect password.");
