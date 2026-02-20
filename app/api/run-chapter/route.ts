@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+
+export const maxDuration = 60; // seconds (requires Vercel Pro for >10s)
 import {
   getBookProject,
   getBookChapters,
@@ -34,12 +36,13 @@ export async function POST(req: NextRequest) {
         chapterNumber: c.chapter_number,
         title: c.title || "",
         narrative: c.narrative || "",
+        illustrationPrompt: c.illustration_prompt || "",
       }));
 
     const chapterInfo = project.chapter_outline?.[chapterNumber - 1];
     const existingCharacterGuide = project.character_guide || "";
 
-    // --- Agent 2: Character Keeper ---
+    // --- Agents 2 & 3: Character Keeper + Oral History Weaver (parallel) ---
     const characterKeeperPrompt = `You are the Character Keeper for a children's genealogy book. Maintain a living character guide that tracks all characters across chapters.
 
 Current character guide:
@@ -54,24 +57,6 @@ Update the character guide to include any new characters or updated details. Kee
 
 Return ONLY the updated character guide as plain text, no JSON, no markdown headers.`;
 
-    const characterKeeperMsg = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 800,
-      messages: [{ role: "user", content: characterKeeperPrompt }],
-    });
-    const updatedCharacterGuide =
-      characterKeeperMsg.content[0].type === "text"
-        ? characterKeeperMsg.content[0].text
-        : existingCharacterGuide;
-
-    // Update character guide in DB
-    await updateBookProjectOutline(
-      projectId,
-      project.chapter_outline || [],
-      updatedCharacterGuide
-    );
-
-    // --- Agent 3: Oral History Weaver ---
     const oralHistoryWeaverPrompt = `You are the Oral History Weaver for a children's genealogy book. Select and shape the most powerful oral history moments for this chapter.
 
 Chapter ${chapterNumber}: "${chapterInfo?.title || `Chapter ${chapterNumber}`}"
@@ -89,13 +74,33 @@ Select 2-4 specific moments, memories, or stories that best illuminate this chap
 
 Return ONLY numbered story beats as plain text (1-2 sentences each). No JSON, no headers.`;
 
-    const weaverMsg = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 600,
-      messages: [{ role: "user", content: oralHistoryWeaverPrompt }],
-    });
+    const [characterKeeperMsg, weaverMsg] = await Promise.all([
+      client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 800,
+        messages: [{ role: "user", content: characterKeeperPrompt }],
+      }),
+      client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 600,
+        messages: [{ role: "user", content: oralHistoryWeaverPrompt }],
+      }),
+    ]);
+
+    const updatedCharacterGuide =
+      characterKeeperMsg.content[0].type === "text"
+        ? characterKeeperMsg.content[0].text
+        : existingCharacterGuide;
+
     const storyBeats =
       weaverMsg.content[0].type === "text" ? weaverMsg.content[0].text : "";
+
+    // Update character guide in DB (parallel with narrative writing — NW uses in-memory value)
+    const characterGuideDbWrite = updateBookProjectOutline(
+      projectId,
+      project.chapter_outline || [],
+      updatedCharacterGuide
+    );
 
     // --- Agent 4: Narrative Writer ---
     const approvedSummary =
@@ -140,6 +145,11 @@ Return ONLY the narrative text, no title, no chapter number, no headers.`;
       narrativeMsg.content[0].type === "text" ? narrativeMsg.content[0].text : "";
 
     // --- Agent 5: Art Director ---
+    const previousIllustrations = approvedChapters
+      .filter((c) => c.illustrationPrompt)
+      .map((c) => `Chapter ${c.chapterNumber}: ${c.illustrationPrompt}`)
+      .join("\n\n");
+
     const artDirectorPrompt = `You are the Art Director for a children's illustrated book. Select the single most emotionally resonant moment from this chapter and craft a perfect illustration prompt.
 
 Chapter narrative:
@@ -148,6 +158,8 @@ ${narrative}
 Art style: ${project.art_style}
 Target age: ${project.target_age}
 Character guide: ${updatedCharacterGuide}
+
+${previousIllustrations ? `Previous chapter illustrations (maintain visual consistency — same character appearances, color palette, and style language):\n${previousIllustrations}` : ""}
 
 Identify THE one best moment to illustrate — the one that would move a child most deeply and work best as a full-page illustration. Then write a Flux-optimized prompt for that exact moment.
 
@@ -186,6 +198,7 @@ Return ONLY a valid JSON object (no markdown, no code fences):
         const Replicate = (await import("replicate")).default;
         const replicate = new Replicate({
           auth: process.env.REPLICATE_API_TOKEN,
+          useFileOutput: false,
         });
 
         const output = await replicate.run("black-forest-labs/flux-schnell", {
@@ -233,13 +246,16 @@ Return ONLY a valid JSON object (no markdown, no code fences):
       }
     }
 
-    // Save chapter to DB
-    const chapterId = await saveBookChapter(projectId, chapterNumber, {
-      title: chapterInfo?.title || `Chapter ${chapterNumber}`,
-      narrative,
-      illustrationPrompt,
-      imageUrl,
-    });
+    // Save chapter + ensure character guide write completes
+    const [chapterId] = await Promise.all([
+      saveBookChapter(projectId, chapterNumber, {
+        title: chapterInfo?.title || `Chapter ${chapterNumber}`,
+        narrative,
+        illustrationPrompt,
+        imageUrl,
+      }),
+      characterGuideDbWrite,
+    ]);
 
     return NextResponse.json({
       id: chapterId,
