@@ -1,4 +1,4 @@
-// Server-only storage functions for book/storytelling data.
+// Server-only storage functions (book/storytelling + admin).
 // Uses the service role key so these only work in API routes, never client components.
 import { createServerClient } from './supabase-server';
 import { BookProject, BookChapter, ChapterOutlineItem, Client, WorkflowOutput, KeyStats, BriefingSections } from './types';
@@ -330,4 +330,96 @@ export async function saveMeetingPrepOutput(
   if (outputError) throw new Error('Failed to save workflow output');
 
   return run.id;
+}
+
+// ============================================
+// Admin — Cross-client stats
+// ============================================
+
+export interface AdminClientStat {
+  id: string;
+  slug: string;
+  name: string;
+  createdAt: string;
+  meetingPrepRuns: number;
+  bookProjects: number;
+  lastActiveAt: string | null;
+}
+
+export interface AdminActivity {
+  type: 'meeting_prep' | 'book_project';
+  clientName: string;
+  clientSlug: string;
+  description: string;
+  createdAt: string;
+}
+
+export async function getAdminStats(): Promise<{
+  clients: AdminClientStat[];
+  recentActivity: AdminActivity[];
+  totalRuns: number;
+  totalBooks: number;
+}> {
+  const supabase = db();
+
+  const [{ data: clients }, { data: runs }, { data: books }] = await Promise.all([
+    supabase.from('clients').select('id, slug, name, created_at').order('created_at', { ascending: false }),
+    supabase.from('workflow_runs').select('id, client_id, created_at, contacts!workflow_runs_contact_id_fkey(name, company)').eq('status', 'completed').order('created_at', { ascending: false }),
+    supabase.from('book_projects').select('id, client_id, title, subject_name, created_at').order('created_at', { ascending: false }),
+  ]);
+
+  const clientsData = (clients || []) as { id: string; slug: string; name: string; created_at: string }[];
+  const runsData = (runs || []) as { id: string; client_id: string; created_at: string; contacts: { name: string; company: string } | { name: string; company: string }[] | null }[];
+  const booksData = (books || []) as { id: string; client_id: string; title: string; subject_name: string; created_at: string }[];
+
+  const clientMap = Object.fromEntries(clientsData.map((c) => [c.id, c]));
+
+  const clientStats: AdminClientStat[] = clientsData.map((c) => {
+    const clientRuns = runsData.filter((r) => r.client_id === c.id);
+    const clientBooks = booksData.filter((b) => b.client_id === c.id);
+    const allDates = [...clientRuns.map((r) => r.created_at), ...clientBooks.map((b) => b.created_at)].sort().reverse();
+    return {
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      createdAt: c.created_at,
+      meetingPrepRuns: clientRuns.length,
+      bookProjects: clientBooks.length,
+      lastActiveAt: allDates[0] || null,
+    };
+  });
+
+  const runActivities: AdminActivity[] = runsData.map((r) => {
+    const contact = Array.isArray(r.contacts) ? r.contacts[0] : r.contacts;
+    const client = clientMap[r.client_id];
+    return {
+      type: 'meeting_prep',
+      clientName: client?.name || r.client_id,
+      clientSlug: client?.slug || r.client_id,
+      description: contact ? `${contact.name} · ${contact.company}` : 'Unknown contact',
+      createdAt: r.created_at,
+    };
+  });
+
+  const bookActivities: AdminActivity[] = booksData.map((b) => {
+    const client = clientMap[b.client_id];
+    return {
+      type: 'book_project',
+      clientName: client?.name || b.client_id,
+      clientSlug: client?.slug || b.client_id,
+      description: `"${b.title}" · ${b.subject_name}`,
+      createdAt: b.created_at,
+    };
+  });
+
+  const recentActivity = [...runActivities, ...bookActivities]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 30);
+
+  return {
+    clients: clientStats,
+    recentActivity,
+    totalRuns: runsData.length,
+    totalBooks: booksData.length,
+  };
 }
