@@ -110,9 +110,10 @@ export default function StorytellingSetupPage({
   const [subjectName, setSubjectName] = useState("");
   const [targetAge, setTargetAge] = useState("5-8");
   const [artStyle, setArtStyle] = useState("watercolor, soft pastels, storybook illustration");
-  const [ancestryMode, setAncestryMode] = useState<AncestryMode>("paste");
+  const [ancestryMode, setAncestryMode] = useState<AncestryMode>("upload");
   const [ancestryText, setAncestryText] = useState("");
   const [ancestryFileName, setAncestryFileName] = useState("");
+  const [ancestryDragOver, setAncestryDragOver] = useState(false);
   const [oralHistory, setOralHistory] = useState("");
 
   // Generation state
@@ -433,7 +434,12 @@ export default function StorytellingSetupPage({
               className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700"
             />
           ) : (
-            <div className="relative rounded-xl border-2 border-dashed border-zinc-800 px-6 py-8 text-center hover:border-zinc-700">
+            <div
+              className={`relative rounded-xl border-2 border-dashed px-6 py-8 text-center transition-colors duration-200 ${ancestryDragOver ? "border-emerald-500/50 bg-emerald-500/5" : "border-zinc-800 hover:border-zinc-700"}`}
+              onDragOver={(e) => { e.preventDefault(); setAncestryDragOver(true); }}
+              onDragLeave={() => setAncestryDragOver(false)}
+              onDrop={(e) => { e.preventDefault(); setAncestryDragOver(false); const file = e.dataTransfer.files[0]; if (file) handleAncestryFile(file); }}
+            >
               <input
                 type="file"
                 accept=".csv,.ged,.txt,.tsv"
