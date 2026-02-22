@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase-server";
+import {
+  buildCharacterKeeperPrompt,
+  buildOralHistoryWeaverPrompt,
+  buildNarrativeWriterPrompt,
+  buildArtDirectorPrompt,
+} from "@/lib/prompts";
 
 export const maxDuration = 60; // seconds (requires Vercel Pro for >10s)
 import {
@@ -43,36 +49,18 @@ export async function POST(req: NextRequest) {
     const existingCharacterGuide = project.character_guide || "";
 
     // --- Agents 2 & 3: Character Keeper + Oral History Weaver (parallel) ---
-    const characterKeeperPrompt = `You are the Character Keeper for a children's genealogy book. Maintain a living character guide that tracks all characters across chapters.
+    const characterKeeperPrompt = buildCharacterKeeperPrompt({
+      project,
+      chapterInfo,
+      chapterNumber,
+      existingCharacterGuide,
+    });
 
-Current character guide:
-${existingCharacterGuide || "No characters established yet."}
-
-This chapter is about: "${chapterInfo?.theme || `Chapter ${chapterNumber}`}"
-Key characters in this chapter: ${chapterInfo?.keyCharacters?.join(", ") || "to be determined"}
-Family subject: "${project.subject_name}"
-Ancestry data: ${project.ancestry_data || "Not provided"}
-
-Update the character guide to include any new characters or updated details. Keep it concise and organized by character name. For each character include: full name, approximate age/generation, relationship to ${project.subject_name}, brief physical description, personality traits.
-
-Return ONLY the updated character guide as plain text, no JSON, no markdown headers.`;
-
-    const oralHistoryWeaverPrompt = `You are the Oral History Weaver for a children's genealogy book. Select and shape the most powerful oral history moments for this chapter.
-
-Chapter ${chapterNumber}: "${chapterInfo?.title || `Chapter ${chapterNumber}`}"
-Theme: "${chapterInfo?.theme || "family history"}"
-Key characters: ${chapterInfo?.keyCharacters?.join(", ") || "family members"}
-Family subject: "${project.subject_name}"
-
-Full oral history notes:
-${project.oral_history || "No oral history provided — create plausible, warm family memories based on the theme"}
-
-Ancestry data:
-${project.ancestry_data || "Not provided"}
-
-Select 2-4 specific moments, memories, or stories that best illuminate this chapter's theme. Shape each into a vivid story beat that a child could understand and feel emotionally.
-
-Return ONLY numbered story beats as plain text (1-2 sentences each). No JSON, no headers.`;
+    const oralHistoryWeaverPrompt = buildOralHistoryWeaverPrompt({
+      project,
+      chapterInfo,
+      chapterNumber,
+    });
 
     const [characterKeeperMsg, weaverMsg] = await Promise.all([
       client.messages.create({
@@ -113,28 +101,15 @@ Return ONLY numbered story beats as plain text (1-2 sentences each). No JSON, no
             .join("\n\n")
         : "This is the first chapter.";
 
-    const narrativePrompt = `You are the Narrative Writer for a children's genealogy book. Write a warm, age-appropriate chapter narrative.
-
-Book title: "${project.title}"
-Family subject: "${project.subject_name}"
-Target age: ${project.target_age}
-Chapter ${chapterNumber}: "${chapterInfo?.title || `Chapter ${chapterNumber}`}"
-Theme: "${chapterInfo?.theme || "family history"}"
-
-Character guide:
-${updatedCharacterGuide}
-
-Story beats to weave in:
-${storyBeats}
-
-Previous chapters (for continuity):
-${approvedSummary}
-
-${feedback ? `REVISION NOTES — apply these changes explicitly:\n${feedback}` : ""}
-
-Write approximately 350 words. Use warm, conversational language appropriate for the target age. Bring characters to life with specific sensory details. Ground the story in the family's real history. End with a moment that connects past to present — something a child reading this book would remember.
-
-Return ONLY the narrative text, no title, no chapter number, no headers.`;
+    const narrativePrompt = buildNarrativeWriterPrompt({
+      project,
+      chapterInfo,
+      chapterNumber,
+      updatedCharacterGuide,
+      storyBeats,
+      approvedSummary,
+      feedback,
+    });
 
     const narrativeMsg = await client.messages.create({
       model: "claude-sonnet-4-6",
@@ -150,24 +125,12 @@ Return ONLY the narrative text, no title, no chapter number, no headers.`;
       .map((c) => `Chapter ${c.chapterNumber}: ${c.illustrationPrompt}`)
       .join("\n\n");
 
-    const artDirectorPrompt = `You are the Art Director for a children's illustrated book. Select the single most emotionally resonant moment from this chapter and craft a perfect illustration prompt.
-
-Chapter narrative:
-${narrative}
-
-Art style: ${project.art_style}
-Target age: ${project.target_age}
-Character guide: ${updatedCharacterGuide}
-
-${previousIllustrations ? `Previous chapter illustrations (maintain visual consistency — same character appearances, color palette, and style language):\n${previousIllustrations}` : ""}
-
-Identify THE one best moment to illustrate — the one that would move a child most deeply and work best as a full-page illustration. Then write a Flux-optimized prompt for that exact moment.
-
-Return ONLY a valid JSON object (no markdown, no code fences):
-{
-  "sceneRationale": "One sentence explaining why this moment was chosen",
-  "illustrationPrompt": "children's book illustration, ${project.art_style}, [vivid scene description with specific character details, colors, setting], soft warm lighting, high detail, storybook quality, no text"
-}`;
+    const artDirectorPrompt = buildArtDirectorPrompt({
+      project,
+      narrative,
+      updatedCharacterGuide,
+      previousIllustrations,
+    });
 
     const artDirectorMsg = await client.messages.create({
       model: "claude-sonnet-4-6",

@@ -1,4 +1,5 @@
 import { getAdminStats } from "@/lib/storage-server";
+import ProvisionClientForm from "./components/ProvisionClientForm";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -100,6 +101,9 @@ export default async function AdminDashboard() {
           </table>
         </div>
       </section>
+
+      {/* Provision new client */}
+      <ProvisionClientForm />
 
       {/* Recent activity */}
       <section>
